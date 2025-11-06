@@ -1,477 +1,559 @@
-# UDA-Hub: Multi-Agent Customer Support System
+# 🤖 UDA-Hub: Sistema Multi-Agente de Suporte ao Cliente
 
-An intelligent customer support system built with LangGraph's supervisor pattern, featuring specialized agents for ticket classification, RAG-based resolution, database operations, and intelligent escalation.
+[![Python](https://img.shields.io/badge/Python-3.13-blue.svg)](https://www.python.org/)
+[![LangChain](https://img.shields.io/badge/LangChain-0.3-green.svg)](https://www.langchain.com/)
+[![LangGraph](https://img.shields.io/badge/LangGraph-0.5-orange.svg)](https://www.langchain.com/langgraph)
+[![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o-purple.svg)](https://openai.com/)
 
-## Overview
+> Sistema inteligente de atendimento ao cliente baseado em arquitetura multi-agente com supervisor, utilizando IA Generativa para classificação, resolução e escalação automática de tickets.
 
-UDA-Hub is a production-ready multi-agent system designed to handle customer support tickets for CultPass (a fitness subscription service). The system autonomously:
+## 📋 Índice
 
-- **Classifies** incoming support tickets by issue type, urgency, and sentiment
-- **Resolves** issues using a knowledge base (RAG) when possible
-- **Executes** database operations for user-specific queries
-- **Escalates** complex issues to human agents when necessary
-- **Remembers** context across conversations for personalized support
-- **Logs** all decisions for monitoring and analysis
+- [Visão Geral](#-visão-geral)
+- [Arquitetura](#-arquitetura)
+- [Funcionalidades](#-funcionalidades)
+- [Tecnologias](#-tecnologias)
+- [Estrutura do Projeto](#-estrutura-do-projeto)
+- [Instalação](#-instalação)
+- [Uso](#-uso)
+- [Agentes](#-agentes)
+- [Fluxo de Trabalho](#-fluxo-de-trabalho)
+- [Exemplos](#-exemplos)
 
-## Features
+---
 
-✅ **Intelligent Ticket Classification** - Categorizes issues with high accuracy  
-✅ **RAG-Based Knowledge Retrieval** - Answers questions from knowledge base  
-✅ **Database Tool Integration** - Queries and modifies CultPass data  
-✅ **Memory Management** - Session and cross-session context preservation  
-✅ **Automatic Escalation** - Routes complex issues to humans  
-✅ **Comprehensive Logging** - Structured JSON logging for all events  
-✅ **Multi-Turn Conversations** - Maintains context across exchanges  
-✅ **High Test Coverage** - Extensive unit, integration, and E2E tests
+## 🎯 Visão Geral
 
-## Architecture
+O **UDA-Hub** (Unified Digital Assistant Hub) é um sistema avançado de suporte ao cliente que utiliza múltiplos agentes especializados coordenados por um supervisor inteligente. O sistema processa tickets de suporte, classifica problemas, busca soluções em bases de conhecimento, executa operações em bancos de dados e escala para atendimento humano quando necessário.
+
+### Principais Características
+
+- ✅ **Arquitetura Multi-Agente**: 4 agentes especializados trabalhando em conjunto
+- ✅ **Supervisor Inteligente**: Roteamento automático baseado em contexto e confiança
+- ✅ **RAG (Retrieval-Augmented Generation)**: Base de conhecimento para resolução de problemas
+- ✅ **Execução de Ferramentas**: Consultas e operações em bancos de dados externos
+- ✅ **Escalação Inteligente**: Detecta quando é necessário intervenção humana
+- ✅ **Sistema de Logging Estruturado**: Rastreamento completo de decisões e ações
+- ✅ **Memória de Longo Prazo**: Persistência de conversas e contexto do cliente
+- ✅ **Interface CLI Interativa**: Testes em tempo real com feedback detalhado
+
+---
+
+## 🏗️ Arquitetura
+
+O sistema utiliza uma arquitetura **Supervisor-Based Multi-Agent** implementada com LangGraph:
 
 ```
-┌──────────────────────────────────────────────────┐
-│              Supervisor Agent                     │
-│         (Central Orchestrator)                    │
-└─────────┬────────────┬────────────┬──────────────┘
-          │            │            │            
-          ▼            ▼            ▼            
-    ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
-    │Classifier│ │ Resolver │ │   Tool   │ │Escalation│
-    │  Agent   │ │  Agent   │ │  Agent   │ │  Agent   │
-    └──────────┘ └────┬─────┘ └────┬─────┘ └──────────┘
-                      │            │
-                      ▼            ▼
-               ┌──────────┐  ┌──────────┐
-               │   RAG    │  │ CultPass │
-               │  System  │  │   DB     │
-               └──────────┘  └──────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                        SUPERVISOR                           │
+│              (Roteamento Inteligente)                       │
+└───────────┬─────────────────────────────────────────────────┘
+            │
+            ├──────► CLASSIFIER AGENT
+            │        └─ Classifica tipo, urgência e complexidade
+            │
+            ├──────► RESOLVER AGENT
+            │        └─ Busca soluções na base de conhecimento (RAG)
+            │
+            ├──────► TOOL AGENT
+            │        └─ Executa operações em bancos de dados
+            │
+            └──────► ESCALATION AGENT
+                     └─ Prepara escalação para agente humano
 ```
 
-**Supervisor Pattern**: Central orchestrator routes tickets to specialized agents based on classification, confidence, and state.
+### Fluxo de Decisão do Supervisor
 
-## Quick Start
+1. **Verificação de Pedido Humano**: Detecta se usuário solicitou atendimento humano
+2. **Classificação**: Encaminha tickets novos para análise inicial
+3. **Avaliação de Confiança**: Decide se resolução é suficiente (≥0.7)
+4. **Execução de Ferramentas**: Identifica necessidade de consultas ao banco
+5. **Escalação**: Encaminha casos complexos ou não resolvidos
 
-### Prerequisites
+---
 
-- Python 3.8+
-- OpenAI API key
-- pip package manager
+## 🚀 Funcionalidades
 
-### Installation
+### 1. Classificação Automática
+- Identifica tipo de problema (técnico, billing, conta, reserva, geral)
+- Define urgência (baixa, média, alta, crítica)
+- Avalia complexidade (simples, moderada, complexa)
+- Extrai tags relevantes para busca
 
-```bash
-# 1. Clone repository
-git clone <repository-url>
-cd UDA-Hub
+### 2. Resolução Baseada em RAG
+- Busca em base de conhecimento usando embeddings
+- Calcula score de confiança da resposta
+- Utiliza múltiplos artigos quando necessário
+- Determina se pode resolver ou precisa escalar
 
-# 2. Create virtual environment
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+### 3. Ferramentas de Banco de Dados
+- **User Lookup**: Busca informações do usuário
+- **Subscription Check**: Verifica status de assinaturas
+- **Experience Search**: Pesquisa experiências disponíveis
+- **Reservation Management**: Cria, lista e cancela reservas
+- **Refund Processing**: Processa solicitações de reembolso
 
-# 3. Install dependencies
-pip install -r requirements.txt
+### 4. Escalação Inteligente
+- Resume o problema de forma concisa
+- Lista todas as tentativas de resolução
+- Define prioridade (P1-P4)
+- Recomenda ações para agente humano
+- Fornece contexto relevante
 
-# 4. Configure environment
-cp .env.example .env
-# Edit .env and add your OPENAI_API_KEY
+### 5. Sistema de Logging
+- Logs estruturados em JSON
+- Rastreamento de decisões de cada agente
+- Métricas de performance
+- Análise de conversas
+- Exportação para auditoria
 
-# 5. Initialize databases
-jupyter notebook 01_external_db_setup.ipynb  # Run all cells
-jupyter notebook 02_core_db_setup.ipynb      # Run all cells
+---
 
-# 6. Run application
-jupyter notebook 03_agentic_app.ipynb        # Run example scenarios
-```
+## 🛠️ Tecnologias
 
-### Verify Installation
+### Core
+- **Python 3.13**: Linguagem principal
+- **LangChain 0.3**: Framework para aplicações com LLMs
+- **LangGraph 0.5**: Orquestração de workflows multi-agente
+- **OpenAI GPT-4o-mini**: Modelo de linguagem
 
-```bash
-python solution/docs/test_installation.py
-```
+### Dados e Armazenamento
+- **SQLAlchemy 2.0**: ORM para bancos de dados
+- **FAISS**: Busca vetorial para RAG
+- **SQLite**: Bancos de dados locais (core + externos)
 
-Expected output: `✅ All tests passed! Setup complete.`
+### Ferramentas Auxiliares
+- **python-dotenv**: Gerenciamento de variáveis de ambiente
+- **httpx**: Cliente HTTP assíncrono
+- **numpy**: Operações numéricas
+- **ipykernel**: Suporte a Jupyter Notebooks
 
-## Dependencies
+---
 
-### Core Framework
-- **langchain** (>=0.3.27) - Agent framework and orchestration
-- **langchain-openai** (>=0.3.28) - OpenAI LLM and embeddings integration
-- **langgraph** (>=0.5.4) - Workflow graph and state management
-- **langgraph-supervisor** (>=0.0.28) - Supervisor pattern implementation
-
-### Database & Storage
-- **sqlalchemy** (>=2.0.41) - ORM for database operations
-- SQLite (built-in) - Database engine
-
-### Utilities
-- **python-dotenv** (>=1.1.1) - Environment variable management
-- **ipykernel** (>=6.30.0) - Jupyter notebook support
-
-### AI Models
-- **OpenAI GPT-4o-mini** - Language model for agents
-- **OpenAI text-embedding-3-small** - Embeddings for RAG
-
-See `requirements.txt` for complete list with version constraints.
-
-## Project Structure
+## 📁 Estrutura do Projeto
 
 ```
 UDA-Hub/
-├── agentic/                    # Core agent system
-│   ├── agents/                 # Agent implementations
-│   │   ├── classifier.py       # Classification agent
-│   │   ├── resolver.py         # RAG-based resolution
-│   │   ├── tool_agent.py       # Database operations
-│   │   ├── escalation.py       # Human handoff
-│   │   └── state.py            # State schema
-│   ├── tools/                  # Tools and utilities
-│   │   ├── rag_setup.py        # RAG system initialization
-│   │   ├── cultpass_read_tools.py   # Database read ops
-│   │   ├── cultpass_write_tools.py  # Database write ops
-│   │   └── confidence_scorer.py     # Confidence calculation
-│   ├── design/                 # Design documentation
-│   │   ├── ARCHITECTURE.md     # System architecture
-│   │   ├── AGENT_SPECIFICATIONS.md
-│   │   ├── DATA_FLOW.md
-│   │   └── ...
-│   ├── workflow.py             # Supervisor orchestration
-│   ├── memory.py               # Memory management
-│   ├── logging.py              # Structured logging
-│   └── inspector.py            # Log analysis
+├── agentic/                      # Sistema multi-agente
+│   ├── agents/                   # Agentes especializados
+│   │   ├── classifier.py         # Classifica tickets
+│   │   ├── resolver.py           # Resolve com RAG
+│   │   ├── tool_agent.py         # Executa ferramentas
+│   │   ├── escalation.py         # Prepara escalação
+│   │   ├── state.py              # Schema de estado compartilhado
+│   │   └── wrappers.py           # Wrappers para agentes
+│   ├── tools/                    # Ferramentas disponíveis
+│   │   ├── rag_tools.py          # Sistema RAG
+│   │   └── db_tools.py           # Ferramentas de banco de dados
+│   ├── config.py                 # Configuração OpenAI
+│   ├── logging.py                # Sistema de logging estruturado
+│   ├── memory.py                 # Memória de longo prazo
+│   ├── inspector.py              # Inspeção de estado
+│   └── workflow.py               # Orquestração do workflow
 │
-├── solution/                   # Deliverables
-│   ├── tests/                  # Comprehensive test suite
-│   │   ├── test_agents.py      # Agent unit tests
-│   │   ├── test_workflow.py    # Integration tests
-│   │   ├── test_e2e_scenarios.py  # End-to-end tests
-│   │   ├── test_rag.py         # RAG system tests
-│   │   ├── test_logging.py     # Logging tests
-│   │   ├── conftest.py         # Pytest fixtures
-│   │   └── fixtures/           # Test data
-│   │       └── sample_tickets.py
-│   └── docs/                   # Documentation
-│       ├── AGENTS.md           # Agent specifications
-│       ├── TOOLS.md            # Tool documentation
-│       ├── WORKFLOW.md         # Workflow guide
-│       └── SETUP.md            # Installation guide
+├── data/                         # Bancos de dados
+│   ├── external/                 # DB externo (CultPass)
+│   ├── core/                     # DB core (UDA-Hub)
+│   └── models/                   # Modelos de ML (embeddings)
 │
-├── data/                       # Databases and knowledge
-│   ├── external/               # CultPass database
-│   │   ├── cultpass.db
-│   │   └── cultpass_articles.jsonl
-│   ├── core/                   # UDA-Hub database
-│   │   └── udahub.db
-│   └── models/                 # Database models
-│       ├── cultpass.py
-│       └── udahub.py
+├── logs/                         # Logs estruturados JSON
 │
-├── logs/                       # Application logs
-│   ├── udahub.log
-│   └── udahub.json
+├── 01_external_db_setup.ipynb   # Setup banco externo
+├── 02_core_db_setup.ipynb       # Setup banco core
+├── 03_agentic_app.ipynb         # Aplicação principal
 │
-├── 01_external_db_setup.ipynb  # Database initialization
-├── 02_core_db_setup.ipynb
-├── 03_agentic_app.ipynb        # Main application
-├── requirements.txt            # Python dependencies
-├── .env                        # Environment configuration (not in repo)
-├── .gitignore                  # Git ignore rules
-└── README.md                   # This file
+├── cli.py                        # Interface CLI interativa
+├── utils.py                      # Utilitários
+├── init_cultpass_db.py          # Script de inicialização
+└── requirements.txt              # Dependências
 ```
 
-## Usage
+---
 
-### Example 1: Simple Login Issue (RAG Resolution)
+## 📦 Instalação
 
-```python
-from langchain_core.messages import HumanMessage
-from agentic.workflow import orchestrator
+### Pré-requisitos
+- Python 3.13+
+- OpenAI API Key
 
-state = {
-    "messages": [
-        HumanMessage(content="I forgot my password. How do I reset it?")
-    ],
-    "ticket_metadata": {
-        "ticket_id": "TKT-001",
-        "account_id": "cultpass",
-        "user_email": "user@example.com"
-    }
-}
+### Passos
 
-config = {"configurable": {"thread_id": "TKT-001"}}
-result = orchestrator.invoke(state, config)
-
-print(result["messages"][-1].content)
-# Output: "To reset your password: 1) Go to login page..."
-```
-
-**Flow**: Classifier → Resolver (RAG) → Response
-
-### Example 2: Booking Query (Tool Execution)
-
-```python
-state = {
-    "messages": [
-        HumanMessage(content="Show me my upcoming class reservations")
-    ],
-    "ticket_metadata": {
-        "ticket_id": "TKT-002",
-        "account_id": "cultpass",
-        "user_email": "yogi@example.com"
-    }
-}
-
-result = orchestrator.invoke(state, config)
-
-# Flow: Classifier → Tool Agent (database query) → Response
-# Output: "You have 2 upcoming reservations: Yoga on Nov 10..."
-```
-
-### Example 3: Complex Issue (Escalation)
-
-```python
-state = {
-    "messages": [
-        HumanMessage(content="I was charged twice! I need a refund now!")
-    ],
-    "ticket_metadata": {
-        "ticket_id": "TKT-003",
-        "account_id": "cultpass",
-        "user_email": "angry@example.com"
-    }
-}
-
-result = orchestrator.invoke(state, config)
-
-# Flow: Classifier → Escalation Agent
-# Output: "I'm connecting you with our billing team..."
-print(result["escalation"]["priority"])  # "high"
-```
-
-## Testing
-
-### Run All Tests
-
+1. **Clone o repositório**
 ```bash
-pytest solution/tests/ -v
+git clone <url-do-repositorio>
+cd UDA-Hub
 ```
 
-### Run Specific Test Suites
-
+2. **Crie um ambiente virtual**
 ```bash
-# Unit tests for agents
-pytest solution/tests/test_agents.py -v
-
-# Integration tests
-pytest solution/tests/test_workflow.py -v
-
-# End-to-end scenarios
-pytest solution/tests/test_e2e_scenarios.py -v
-
-# RAG system tests
-pytest solution/tests/test_rag.py -v
-
-# Logging tests
-pytest solution/tests/test_logging.py -v
+python3 -m venv venv
+source venv/bin/activate  # Linux/Mac
+# ou
+venv\Scripts\activate  # Windows
 ```
 
-### Test Coverage
-
+3. **Instale as dependências**
 ```bash
-pytest solution/tests/ --cov=agentic --cov-report=html
-# Open htmlcov/index.html in browser
+pip install -r requirements.txt
 ```
 
-### Test Breakdown
-
-**Unit Tests** (`test_agents.py`):
-- ✅ Classifier accuracy for different issue types
-- ✅ Resolver RAG retrieval and confidence scoring
-- ✅ Tool Agent database operations
-- ✅ Escalation logic and triggers
-- ✅ Agent integration and data flow
-
-**Integration Tests** (`test_workflow.py`):
-- ✅ Supervisor routing decisions
-- ✅ Multi-agent coordination
-- ✅ State management and transitions
-- ✅ Memory persistence (session and cross-session)
-- ✅ Error handling and fallbacks
-
-**E2E Tests** (`test_e2e_scenarios.py`):
-- ✅ Complete user journeys (login, booking, billing)
-- ✅ Multi-turn conversations
-- ✅ Complex multi-issue tickets
-- ✅ User-requested escalations
-- ✅ Memory and personalization
-
-**RAG Tests** (`test_rag.py`):
-- ✅ Document retrieval accuracy
-- ✅ Confidence scoring
-- ✅ Knowledge base quality
-- ✅ Performance benchmarks
-
-**Logging Tests** (`test_logging.py`):
-- ✅ Event capture completeness
-- ✅ Log format and structure
-- ✅ Metrics calculation
-- ✅ Error handling
-
-## Documentation
-
-Comprehensive documentation in `solution/docs/`:
-
-- **[SETUP.md](solution/docs/SETUP.md)** - Complete installation and configuration guide
-- **[AGENTS.md](solution/docs/AGENTS.md)** - Detailed agent specifications and usage
-- **[TOOLS.md](solution/docs/TOOLS.md)** - RAG and database tool documentation
-- **[WORKFLOW.md](solution/docs/WORKFLOW.md)** - Workflow architecture and routing logic
-- **[VOCAREUM.md](solution/docs/VOCAREUM.md)** - Vocareum GenAI Gateway integration guide
-
-Additional design docs in `agentic/design/`:
-- ARCHITECTURE.md, AGENT_SPECIFICATIONS.md, DATA_FLOW.md, RAG_IMPLEMENTATION.md, MEMORY_STRATEGY.md, DIAGRAMS.md
-
-## Rubric Coverage
-
-This implementation covers all project rubric requirements:
-
-1. ✅ **Classification** - Multi-category ticket classification with confidence scoring
-2. ✅ **Routing** - Supervisor-based intelligent routing to specialized agents
-3. ✅ **RAG** - Knowledge base retrieval with embeddings and similarity search
-4. ✅ **Tools** - Database read/write tools for CultPass operations
-5. ✅ **Memory** - Session memory (MemorySaver) and cross-session memory (CustomerMemoryStore)
-6. ✅ **Escalation** - Automatic and user-requested escalation with context preservation
-7. ✅ **Logging** - Structured JSON logging for all events and decisions
-8. ✅ **Testing** - Comprehensive unit, integration, and E2E test coverage
-9. ✅ **Documentation** - Complete setup, usage, and API documentation
-
-## Performance Metrics
-
-**Target Performance**:
-- Classification accuracy: >90%
-- Auto-resolution rate: >70%
-- RAG retrieval time: <500ms
-- Database query time: <200ms
-- End-to-end response: <5 seconds
-- Escalation rate: <30%
-
-Monitor these metrics using the logging inspector:
-
-```python
-from agentic.inspector import analyze_logs
-
-metrics = analyze_logs(log_dir="logs")
-print(metrics)
-```
-
-## Built With
-
-* [LangChain](https://python.langchain.com/) - Agent framework
-* [LangGraph](https://langchain-ai.github.io/langgraph/) - Workflow orchestration
-* [OpenAI](https://openai.com/) - Language models and embeddings
-* [SQLAlchemy](https://www.sqlalchemy.org/) - Database ORM
-* [Pytest](https://pytest.org/) - Testing framework
-
-## Environment Variables
-
-**Required Configuration**:
-
-Create a `.env` file in the project root (never commit this file):
-
-```bash
-# OpenAI API Configuration
-OPENAI_API_KEY=sk-your-actual-key-here
-
-# Optional: Vocareum GenAI Gateway Configuration
-# If using Vocareum, uncomment and set the gateway endpoint:
-# OPENAI_API_BASE=https://gateway.vocareum.com/v1
-
-# Optional: Model Configuration  
+4. **Configure as variáveis de ambiente**
+Crie um arquivo `.env` na raiz do projeto:
+```env
+OPENAI_API_KEY=sua-chave-api-aqui
 OPENAI_MODEL=gpt-4o-mini
 OPENAI_EMBEDDING_MODEL=text-embedding-3-small
-
-# Optional: Database Paths
-CULTPASS_DB_PATH=data/external/cultpass.db
-UDAHUB_DB_PATH=data/core/udahub.db
-
-# Optional: Logging Configuration
-LOG_LEVEL=INFO
-LOG_DIR=logs
+# Opcional: Para Vocareum Gateway
+# OPENAI_API_BASE=https://gateway.vocareum.com/v1
 ```
 
-**Security Best Practices**:
+5. **Inicialize os bancos de dados**
+Execute os notebooks na ordem:
+- `01_external_db_setup.ipynb` - Cria banco de dados externo (CultPass)
+- `02_core_db_setup.ipynb` - Cria banco de dados core (UDA-Hub)
+- `03_agentic_app.ipynb` - Testa o sistema
 
-1. **Never commit `.env` files** - Use `.env.example` as a template
-2. **Rotate API keys regularly** - Especially if accidentally exposed
-3. **Use environment-specific keys** - Different keys for dev/test/prod
-4. **Limit API key permissions** - Only grant necessary scopes
-5. **Monitor API usage** - Set up alerts for unusual activity
+---
 
-**Loading Environment Variables**:
+## 💻 Uso
 
-The application automatically loads `.env` using `python-dotenv`:
+### Via CLI Interativo
 
+```bash
+python cli.py
+```
+
+**Opções disponíveis:**
+```bash
+# Com logs em tempo real
+python cli.py --show-logs
+
+# Com ID de sessão customizado
+python cli.py --session-id TESTE-001
+
+# Com memória de longo prazo
+python cli.py --memory
+
+# Com conta específica
+python cli.py --account cultpass
+```
+
+**Comandos durante o chat:**
+- `/help` - Mostra comandos disponíveis
+- `/history` - Exibe histórico da conversa
+- `/stats` - Mostra estatísticas da sessão
+- `/logs` - Ativa/desativa logs em tempo real
+- `/export` - Exporta conversa para arquivo
+- `quit`, `exit`, `q` - Encerra a sessão
+
+### Via Jupyter Notebook
+
+Abra e execute `03_agentic_app.ipynb` para exemplos interativos e testes detalhados.
+
+---
+
+## 🤖 Agentes
+
+### 1. Classifier Agent
+**Responsabilidade**: Análise e classificação inicial do ticket
+
+**Saída**:
 ```python
-from dotenv import load_dotenv
-import os
-
-load_dotenv()  # Load from .env file
-api_key = os.getenv("OPENAI_API_KEY")
+{
+    "issue_type": "technical|billing|account|booking|general",
+    "urgency": "low|medium|high|critical",
+    "complexity": "simple|moderate|complex",
+    "tags": ["tag1", "tag2", ...],
+    "confidence": 0.95
+}
 ```
 
-**Running Tests**:
+**Exemplos de Classificação**:
+- "Não consigo fazer login" → `technical`, `high`, `moderate`
+- "Preciso cancelar reserva" → `booking`, `medium`, `simple`
+- "Quero reembolso urgente" → `billing`, `high`, `moderate`
 
-Tests mock all API calls, so no real API key is needed:
+---
 
-```bash
-# Tests work even without OPENAI_API_KEY set
-pytest solution/tests/
+### 2. Resolver Agent
+**Responsabilidade**: Resolução usando base de conhecimento (RAG)
+
+**Processo**:
+1. Busca artigos relevantes por similaridade vetorial
+2. Gera resposta usando contexto dos artigos
+3. Calcula confiança da resolução
+4. Decide se pode resolver ou precisa escalar
+
+**Saída**:
+```python
+{
+    "resolved": True,
+    "confidence": 0.85,
+    "answer": "Para redefinir sua senha...",
+    "articles_used": ["KB-123", "KB-456"],
+    "escalation_reason": None
+}
 ```
 
-The `conftest.py` automatically patches `ChatOpenAI` and `OpenAIEmbeddings` to prevent network requests during testing.
+---
 
-**Accidental Key Exposure**:
+### 3. Tool Agent
+**Responsabilidade**: Execução de ferramentas e operações em banco de dados
 
-If you accidentally commit an API key:
+**Ferramentas Disponíveis**:
 
-1. **Immediately rotate the key** in your OpenAI dashboard
-2. **Remove from git history**: `git filter-repo --path .env --invert-paths`
-3. **Verify removal**: Check GitHub/GitLab that file doesn't exist in history
+| Ferramenta | Descrição | Uso |
+|------------|-----------|-----|
+| `user_lookup_tool` | Busca dados do usuário | Verificar conta, status |
+| `subscription_check_tool` | Verifica assinaturas | Planos, status, validade |
+| `experience_search_tool` | Busca experiências | Disponibilidade, filtros |
+| `reservation_list_tool` | Lista reservas | Histórico do usuário |
+| `reservation_create_tool` | Cria nova reserva | Agendamentos |
+| `reservation_cancel_tool` | Cancela reserva | Cancelamentos |
+| `refund_processing_tool` | Processa reembolso | Devoluções |
 
-## Security & Privacy
-
-- ✅ No `.env` files in repository (use `.env.example` template)
-- ✅ No large `.db` files committed (databases generated locally)
-- ✅ API keys loaded from environment variables only
-- ✅ User data access controls in tools
-- ✅ Audit logging for all operations
-- ✅ **Sensitive data redaction in logs** (emails, API keys, tokens automatically sanitized)
-- ✅ **PII protection** (phone numbers, credit cards masked in logs)
-- ✅ **Email hashing** (emails hashed but domain preserved for debugging)
-
-## Known Limitations
-
-- SQLite used for simplicity (use PostgreSQL/MySQL for production)
-- In-memory vector store (consider Pinecone/Weaviate for scale)
-- Single-threaded processing (add async for concurrency)
-- Limited knowledge base (expand based on real tickets)
-
-## Future Enhancements
-
-- Real-time chat interface (WebSocket)
-- Advanced analytics dashboard
-- Multi-language support
-- Voice/call integration
-- Automated testing in CI/CD
-- Performance monitoring and alerts
-- A/B testing for different prompts
-
-## Contributing
-
-See development setup in `solution/docs/SETUP.md`.
-
-Code formatting:
-```bash
-black agentic/ solution/
-flake8 agentic/ solution/
+**Exemplo de Uso**:
+```
+Usuário: "Quero cancelar minha reserva para yoga"
+Tool Agent: Executa reservation_list_tool → reservation_cancel_tool → refund_processing_tool
 ```
 
-## License
+---
 
-See LICENSE file for details.
+### 4. Escalation Agent
+**Responsabilidade**: Preparação para escalação humana
+
+**Saída**:
+```python
+{
+    "summary": "Cliente não consegue acessar conta há 3 dias",
+    "attempted_steps": [
+        "Tentativa de reset de senha (falhou)",
+        "Verificação de email cadastrado (correto)",
+        "Busca na base de conhecimento (sem solução)"
+    ],
+    "priority": "P2",  # P1=Crítico, P2=Alto, P3=Médio, P4=Baixo
+    "recommended_action": "Verificar logs do servidor...",
+    "context": {
+        "user_id": "U12345",
+        "account_id": "cultpass",
+        "last_login": "2025-11-03",
+        ...
+    }
+}
+```
+
+---
+
+## 🔄 Fluxo de Trabalho
+
+### Exemplo: Ticket de Login
+
+```mermaid
+sequenceDiagram
+    participant U as Usuário
+    participant S as Supervisor
+    participant C as Classifier
+    participant R as Resolver
+    participant E as Escalation
+
+    U->>S: "Não consigo fazer login"
+    S->>C: Classificar ticket
+    C->>S: technical, high, moderate
+    S->>R: Buscar solução
+    R->>S: Confidence: 0.85 (resolvido)
+    S->>U: Resposta com instruções
+```
+
+### Exemplo: Ticket Complexo com Ferramentas
+
+```mermaid
+sequenceDiagram
+    participant U as Usuário
+    participant S as Supervisor
+    participant C as Classifier
+    participant T as Tool Agent
+    participant E as Escalation
+
+    U->>S: "Cancelar reserva e reembolso"
+    S->>C: Classificar ticket
+    C->>S: booking, high, moderate
+    S->>T: Executar ferramentas
+    T->>T: reservation_list_tool
+    T->>T: reservation_cancel_tool
+    T->>T: refund_processing_tool
+    T->>S: Operações concluídas
+    S->>U: Confirmação do cancelamento
+```
+
+---
+
+## 📊 Exemplos
+
+### Exemplo 1: Problema Técnico (Resolvido)
+
+**Input**:
+```
+Usuário: Estou com problema de login, não consigo acessar minha conta
+```
+
+**Processamento**:
+1. **Classifier**: `technical`, `high`, `moderate`, `confidence: 0.92`
+2. **Resolver**: Busca artigos sobre login → Gera resposta → `confidence: 0.88`
+3. **Supervisor**: Confiança alta → **Finaliza**
+
+**Output**:
+```
+Para resolver problemas de login:
+1. Verifique sua conexão com a internet
+2. Limpe o cache do navegador
+3. Tente redefinir sua senha usando "Esqueci minha senha"
+4. Se o problema persistir, entre em contato pelo email suporte@...
+```
+
+---
+
+### Exemplo 2: Reserva com Ferramentas
+
+**Input**:
+```
+Usuário: Quero cancelar minha reserva de yoga amanhã e receber reembolso
+```
+
+**Processamento**:
+1. **Classifier**: `booking`, `medium`, `moderate`, `confidence: 0.95`
+2. **Tool Agent**: 
+   - Lista reservas do usuário
+   - Identifica reserva de yoga
+   - Cancela reserva
+   - Processa reembolso
+3. **Supervisor**: Operações concluídas → **Finaliza**
+
+**Output**:
+```
+✅ Reserva cancelada com sucesso!
+
+Detalhes:
+- Experiência: Yoga Matinal
+- Data: 2025-11-07 08:00
+- Reembolso: R$ 50,00 (processado em até 5 dias úteis)
+- Status: Cancelada
+
+Número do reembolso: REF-789456
+```
+
+---
+
+### Exemplo 3: Escalação Necessária
+
+**Input**:
+```
+Usuário: Minha conta foi cobrada 3 vezes pelo mesmo serviço, preciso de ajuda urgente!
+```
+
+**Processamento**:
+1. **Classifier**: `billing`, `critical`, `complex`, `confidence: 0.89`
+2. **Resolver**: Tentativa de resolução → `confidence: 0.45` (baixa)
+3. **Escalation**: Prepara resumo detalhado
+4. **Supervisor**: Confiança baixa + complexidade → **Escala**
+
+**Output**:
+```
+⚠️ Sua solicitação foi escalada para um agente humano.
+
+Resumo: Cobrança duplicada (3x) - necessita verificação urgente
+Prioridade: P1 (Crítica)
+Tempo estimado de resposta: 2 horas
+
+Um agente especializado entrará em contato em breve.
+Protocolo: ESC-20251106-001
+```
+
+---
+
+## 📈 Sistema de Logging
+
+O UDA-Hub possui um sistema completo de logging estruturado em JSON:
+
+### Tipos de Eventos
+- `AGENT_START` / `AGENT_END`: Início e fim da execução de agentes
+- `CLASSIFICATION`: Resultados da classificação
+- `RESOLUTION_ATTEMPT`: Tentativas de resolução
+- `TOOL_EXECUTION`: Execução de ferramentas
+- `ESCALATION`: Eventos de escalação
+- `ROUTING`: Decisões do supervisor
+- `ERROR`: Erros durante execução
+
+### Exemplo de Log
+```json
+{
+  "timestamp": "2025-11-06T10:30:45.123Z",
+  "event_type": "CLASSIFICATION",
+  "agent": "classifier",
+  "thread_id": "CLI-20251106-103045",
+  "data": {
+    "issue_type": "technical",
+    "urgency": "high",
+    "complexity": "moderate",
+    "confidence": 0.92
+  }
+}
+```
+
+---
+
+## 🎓 Aprendizados e Conceitos
+
+Este projeto demonstra conceitos avançados de IA:
+
+1. **Multi-Agent Systems**: Coordenação de agentes especializados
+2. **RAG (Retrieval-Augmented Generation)**: Combinação de LLMs com bases de conhecimento
+3. **Tool Calling**: Integração de LLMs com sistemas externos
+4. **State Management**: Gerenciamento de estado compartilhado entre agentes
+5. **Confidence Scoring**: Avaliação de qualidade de respostas
+6. **Escalation Logic**: Decisões inteligentes sobre quando envolver humanos
+7. **Structured Logging**: Rastreamento e auditoria de sistemas de IA
+8. **Memory Systems**: Persistência de contexto e conversas
+
+---
+
+## 🚧 Melhorias Futuras
+
+- [ ] Suporte a múltiplos idiomas
+- [ ] Interface web (Streamlit/Gradio)
+- [ ] Integração com sistemas de ticketing (Zendesk, Jira)
+- [ ] Fine-tuning de modelos para domínio específico
+- [ ] Métricas de satisfação do cliente
+- [ ] Testes A/B de diferentes estratégias de resolução
+- [ ] Sistema de feedback e aprendizado contínuo
+- [ ] Análise de sentimento em tempo real
+
+---
+
+## 👨‍💻 Autor
+
+**Mello Birkan**
+
+Projeto desenvolvido como parte do portfólio de estudos em IA Generativa e Sistemas Multi-Agente.
+
+---
+
+## 📄 Licença
+
+Este projeto é parte de um portfólio educacional e está disponível para fins de aprendizado.
+
+---
+
+## 🙏 Agradecimentos
+
+- **LangChain** e **LangGraph** pela framework poderosa
+- **OpenAI** pelos modelos de linguagem
+- Comunidade open-source de IA
+
+---
+
+<div align="center">
+
+**⭐ Se este projeto foi útil para você, considere dar uma estrela!**
+
+</div>
