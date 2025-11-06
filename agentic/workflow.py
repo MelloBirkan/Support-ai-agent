@@ -449,7 +449,10 @@ def create_orchestrator(
             details=classification,
             thread_id=state.get("ticket_metadata", {}).get("ticket_id", "unknown")
         )
-        return {"classification": classification}
+        return {
+            "messages": result["messages"],
+            "classification": classification
+        }
     
     def resolver_wrapper(state: UDAHubState) -> dict:
         """Wrapper that invokes resolver and extracts resolution into state."""
@@ -487,7 +490,10 @@ def create_orchestrator(
                 tool_results=None
             )
         
-        return {"resolution": resolution}
+        return {
+            "messages": result["messages"],
+            "resolution": resolution
+        }
     
     def tool_wrapper(state: UDAHubState) -> dict:
         """Wrapper that invokes tool agent and extracts tool_results into state."""
@@ -499,7 +505,10 @@ def create_orchestrator(
             details=tool_results,
             thread_id=state.get("ticket_metadata", {}).get("ticket_id", "unknown")
         )
-        return {"tool_results": tool_results}
+        return {
+            "messages": result["messages"],
+            "tool_results": tool_results
+        }
     
     def escalation_wrapper(state: UDAHubState) -> dict:
         """Wrapper that invokes escalation agent and extracts escalation into state."""
@@ -521,7 +530,10 @@ def create_orchestrator(
                 message_count=len(state.get("messages", []))
             )
         
-        return {"escalation": escalation}
+        return {
+            "messages": result["messages"],
+            "escalation": escalation
+        }
     
     # Create StateGraph with UDAHubState schema
     workflow = StateGraph(UDAHubState)
