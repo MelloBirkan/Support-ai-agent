@@ -1,0 +1,144 @@
+# ==========================================
+# Python
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ==========================================
+# Virtual Environment
+# ==========================================
+venv/
+ENV/
+env/
+.venv
+.conda/
+
+# ==========================================
+# Jupyter Notebook
+# ==========================================
+.ipynb_checkpoints/
+*.ipynb_checkpoints/
+
+# ==========================================
+# Database Files (generated locally)
+# ==========================================
+*.db
+*.sqlite
+*.sqlite3
+# Explicitly exclude database files in data directories
+data/external/*.db
+data/core/*.db
+
+# ==========================================
+# Environment Variables & Secrets
+# ==========================================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+secrets.json
+credentials.json
+config_local.py
+
+# ==========================================
+# IDE & Editor
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# ==========================================
+# OS Files
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ==========================================
+# Logs
+# ==========================================
+logs/
+*.log
+*.json.log
+
+# ==========================================
+# Testing & Coverage
+# ==========================================
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.hypothesis/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+nosetests.xml
+coverage.xml
+*.cover
+
+# ==========================================
+# Documentation Builds
+# ==========================================
+docs/_build/
+site/
+docs/.doctrees/
+
+# ==========================================
+# Temporary & Cache Files
+# ==========================================
+*.tmp
+*.bak
+*.cache
+.cache/
+*.pyc
+*.pyo
+*.pyd
+
+# ==========================================
+# Model & Data Files (large binaries)
+# ==========================================
+models/*.bin
+models/*.pkl
+models/*.h5
+models/*.pt
+models/*.pth
+*.tar.gz
+*.zip
+*.pdf
+*.mp4
+
+# ==========================================
+# Type Checking
+# ==========================================
+.pytype/
+typecheck/
+*.pyi
